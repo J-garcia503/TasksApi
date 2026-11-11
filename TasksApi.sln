@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36408.4 d17.14
+VisualStudioVersion = 17.14.36408.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksApi", "TasksApi.csproj", "{4E1847B4-C940-4976-8F32-1F82BDC67035}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksApi.Tests", "..\TasksApi.Tests\TasksApi.Tests.csproj", "{E4021C56-7ED8-41D4-9F59-DB5F89371D93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksApi.Tests", "TasksApi.Tests\TasksApi.Tests.csproj", "{EAB08706-9714-5124-801F-34B997FC0DA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{4E1847B4-C940-4976-8F32-1F82BDC67035}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E1847B4-C940-4976-8F32-1F82BDC67035}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E1847B4-C940-4976-8F32-1F82BDC67035}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4021C56-7ED8-41D4-9F59-DB5F89371D93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4021C56-7ED8-41D4-9F59-DB5F89371D93}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4021C56-7ED8-41D4-9F59-DB5F89371D93}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4021C56-7ED8-41D4-9F59-DB5F89371D93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAB08706-9714-5124-801F-34B997FC0DA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB08706-9714-5124-801F-34B997FC0DA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAB08706-9714-5124-801F-34B997FC0DA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAB08706-9714-5124-801F-34B997FC0DA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
