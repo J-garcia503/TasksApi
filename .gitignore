@@ -1,0 +1,22 @@
+﻿
+# Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Carpetas de compilación
+**/bin/
+**/obj/
+
+# Base de datos local SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Configuración local
+appsettings.Development.json

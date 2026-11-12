@@ -1,0 +1,17 @@
+@TasksApi_HostAddress = http://localhost:5123
+
+GET {{TasksApi_HostAddress}}/api/Tasks
+Accept: application/json
+
+###
+
+POST {{TasksApi_HostAddress}}/api/Tasks
+Content-Type: application/json
+
+{
+  "title": "Estudiar programación",
+  "description": "Practicar ASP.NET Core",
+  "isCompleted": false
+}
+
+###

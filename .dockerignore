@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/*.user
+**/*.suo
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/appsettings.Development.json
+.git/
+.gitignore
+tests/
+Dockerfile
+docker-compose.yml
+README.md
