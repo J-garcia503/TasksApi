@@ -1,23 +1,17 @@
-﻿
-
-using TaskEntity = TasksApi.Domain.Entities.Task;
+using TasksApi.Application.DTOs;
 
 namespace TasksApi.Application.Interfaces
 {
     public interface ITaskService
     {
-        Task<IEnumerable<TaskEntity>> GetAllAsync();
+        Task<IEnumerable<TaskDto>> GetAllAsync(CancellationToken cancellationToken = default);
 
-        Task<TaskEntity?> GetByIdAsync(int id);
+        Task<TaskDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-        Task<TaskEntity> CreateAsync(TaskEntity task);
+        Task<TaskDto> CreateAsync(CreateTaskDto dto, CancellationToken cancellationToken = default);
 
-        Task<bool> UpdateAsync(int id, TaskEntity task);
+        Task<bool> UpdateAsync(int id, UpdateTaskDto dto, CancellationToken cancellationToken = default);
 
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
     }
 }
-
-
-
-

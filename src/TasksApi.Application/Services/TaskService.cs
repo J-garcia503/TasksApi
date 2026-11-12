@@ -1,63 +1,80 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+using TasksApi.Application.DTOs;
 using TasksApi.Application.Interfaces;
-using TasksApi.Infrastructure.Data;
-using TaskEntity = TasksApi.Domain.Entities.Task;
+using TasksApi.Domain.Entities;
+using TasksApi.Domain.Repositories;
 
-namespace TasksApi.Infrastructure.Services
+namespace TasksApi.Application.Services
 {
     public class TaskService : ITaskService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITaskRepository _repository;
 
-        public TaskService(ApplicationDbContext context)
+        public TaskService(ITaskRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
-        public async Task<IEnumerable<TaskEntity>> GetAllAsync()
+        public async Task<IEnumerable<TaskDto>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return await _context.Tasks.ToListAsync();
+            var tasks = await _repository.GetAllAsync(cancellationToken);
+            return tasks.Select(ToDto);
         }
 
-        public async Task<TaskEntity?> GetByIdAsync(int id)
+        public async Task<TaskDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            return await _context.Tasks.FindAsync(id);
+            var task = await _repository.GetByIdAsync(id, cancellationToken);
+            return task is null ? null : ToDto(task);
         }
 
-        public async Task<TaskEntity> CreateAsync(TaskEntity task)
+        public async Task<TaskDto> CreateAsync(CreateTaskDto dto, CancellationToken cancellationToken = default)
         {
-            _context.Tasks.Add(task);
-            await _context.SaveChangesAsync();
-            return task;
+            var task = new TaskItem
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                IsCompleted = dto.IsCompleted
+            };
+
+            await _repository.AddAsync(task, cancellationToken);
+            await _repository.SaveChangesAsync(cancellationToken);
+
+            return ToDto(task);
         }
 
-        public async Task<bool> UpdateAsync(int id, TaskEntity task)
+        public async Task<bool> UpdateAsync(int id, UpdateTaskDto dto, CancellationToken cancellationToken = default)
         {
-            var existingTask = await _context.Tasks.FindAsync(id);
+            var task = await _repository.GetByIdAsync(id, cancellationToken);
 
-            if (existingTask == null)
+            if (task is null)
                 return false;
 
-            existingTask.Title = task.Title;
-            existingTask.Description = task.Description;
-            existingTask.IsCompleted = task.IsCompleted;
+            task.Title = dto.Title;
+            task.Description = dto.Description;
+            task.IsCompleted = dto.IsCompleted;
 
-            await _context.SaveChangesAsync();
+            await _repository.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _repository.GetByIdAsync(id, cancellationToken);
 
-            if (task == null)
+            if (task is null)
                 return false;
 
-            _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
+            _repository.Remove(task);
+            await _repository.SaveChangesAsync(cancellationToken);
             return true;
         }
+
+        private static TaskDto ToDto(TaskItem task) => new()
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            IsCompleted = task.IsCompleted,
+            CreatedAt = task.CreatedAt
+        };
     }
 }
-
