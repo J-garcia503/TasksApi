@@ -1,20 +1,20 @@
-﻿
 using Microsoft.EntityFrameworkCore;
-using TaskEntity = TasksApi.Domain.Entities.Task;
+using TasksApi.Domain.Entities;
 
-namespace TasksApi.Infrastructure.Data
+namespace TasksApi.Infrastructure.Persistence
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<TaskEntity> Tasks { get; set; }
+        public DbSet<TaskItem> Tasks => Set<TaskItem>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        }
     }
 }
-
-
-

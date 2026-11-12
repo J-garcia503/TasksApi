@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TasksApi.Migrations
+namespace TasksApi.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class AddTasksTable : Migration

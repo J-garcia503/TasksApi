@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TasksApi.Data;
+using TasksApi.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TasksApi.Migrations
+namespace TasksApi.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20261111010814_InitialCreate")]
@@ -19,7 +19,7 @@ namespace TasksApi.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.34");
 
-            modelBuilder.Entity("TasksApi.Models.TaskItem", b =>
+            modelBuilder.Entity("TasksApi.Domain.Entities.TaskItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
