@@ -76,6 +76,40 @@ namespace TasksApi.Tests
         }
 
 
+        [Fact]
+        public async Task UpdateAndDeleteTask_ReturnsNoContent()
+        {
+            var createResponse = await _client.PostAsJsonAsync(
+                "/api/Tasks",
+                new { title = "Tarea a modificar", isCompleted = false }
+            );
+            var created = await createResponse.Content
+                .ReadFromJsonAsync<TaskResponse>();
+
+            var updateResponse = await _client.PutAsJsonAsync(
+                $"/api/Tasks/{created!.Id}",
+                new { title = "Tarea modificada", isCompleted = true }
+            );
+            Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
+
+            var updated = await _client
+                .GetFromJsonAsync<TaskResponse>($"/api/Tasks/{created.Id}");
+            Assert.Equal("Tarea modificada", updated!.Title);
+            Assert.True(updated.IsCompleted);
+
+            var deleteResponse = await _client.DeleteAsync(
+                $"/api/Tasks/{created.Id}"
+            );
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+            var getResponse = await _client.GetAsync(
+                $"/api/Tasks/{created.Id}"
+            );
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+        }
+
+
+        private record TaskResponse(int Id, string Title, bool IsCompleted);
     }
 }
 

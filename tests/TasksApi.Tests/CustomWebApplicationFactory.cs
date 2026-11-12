@@ -1,46 +1,36 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using TasksApi.Infrastructure.Data;
+using TasksApi.Infrastructure.Persistence;
 
 namespace TasksApi.Tests
 {
-    public class CustomWebApplicationFactory
-        : WebApplicationFactory<Program>
+    public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
-        private readonly string _databaseName =
-            $"TasksApiTestDb_{Guid.NewGuid()}";
+        private readonly SqliteConnection _connection = new("Data Source=:memory:");
 
-        protected override void ConfigureWebHost(
-            IWebHostBuilder builder)
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            _connection.Open();
+
             builder.ConfigureServices(services =>
             {
-                services.RemoveAll<
-                    DbContextOptions<ApplicationDbContext>>();
+                services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
 
-                services.RemoveAll<
-                    DbContextOptions<ApplicationDbContext>>();
-
-                services.AddDbContext<ApplicationDbContext>(
-                    options =>
-                        options.UseInMemoryDatabase(_databaseName)
-                );
-
-                var serviceProvider = services.BuildServiceProvider();
-
-                using var scope = serviceProvider.CreateScope();
-
-                var db = scope.ServiceProvider
-                    .GetRequiredService<ApplicationDbContext>();
-
-                db.Database.EnsureCreated();
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite(_connection));
             });
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+                _connection.Dispose();
         }
     }
 }
-
