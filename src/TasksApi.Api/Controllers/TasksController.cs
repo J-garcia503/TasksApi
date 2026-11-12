@@ -1,9 +1,8 @@
-﻿
 using Microsoft.AspNetCore.Mvc;
+using TasksApi.Application.DTOs;
 using TasksApi.Application.Interfaces;
-using TaskEntity = TasksApi.Domain.Entities.Task;
 
-namespace TasksApi.Controllers
+namespace TasksApi.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -17,50 +16,43 @@ namespace TasksApi.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<TaskEntity>), 200)]
-        public async Task<ActionResult<IEnumerable<TaskEntity>>> GetTasks()
+        [ProducesResponseType(typeof(IEnumerable<TaskDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<TaskDto>>> GetTasks(CancellationToken cancellationToken)
         {
-            var tasks = await _taskService.GetAllAsync();
+            var tasks = await _taskService.GetAllAsync(cancellationToken);
             return Ok(tasks);
         }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(TaskEntity), 200)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<TaskEntity>> GetTask(int id)
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(TaskDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<TaskDto>> GetTask(int id, CancellationToken cancellationToken)
         {
-            var task = await _taskService.GetByIdAsync(id);
+            var task = await _taskService.GetByIdAsync(id, cancellationToken);
 
-            if (task == null)
+            if (task is null)
                 return NotFound();
 
             return Ok(task);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(TaskEntity), 201)]
-        [ProducesResponseType(400)]
-        public async Task<ActionResult<TaskEntity>> CreateTask(TaskEntity task)
+        [ProducesResponseType(typeof(TaskDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<TaskDto>> CreateTask(CreateTaskDto dto, CancellationToken cancellationToken)
         {
-            var createdTask = await _taskService.CreateAsync(task);
+            var createdTask = await _taskService.CreateAsync(dto, cancellationToken);
 
-            return CreatedAtAction(
-                nameof(GetTask),
-                new { id = createdTask.Id },
-                createdTask
-            );
+            return CreatedAtAction(nameof(GetTask), new { id = createdTask.Id }, createdTask);
         }
 
-        [HttpPut("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateTask(int id, TaskEntity task)
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateTask(int id, UpdateTaskDto dto, CancellationToken cancellationToken)
         {
-            if (id != task.Id)
-                return BadRequest(new { message = "El ID de la URL no coincide con el ID de la tarea." });
-
-            var updated = await _taskService.UpdateAsync(id, task);
+            var updated = await _taskService.UpdateAsync(id, dto, cancellationToken);
 
             if (!updated)
                 return NotFound();
@@ -68,12 +60,12 @@ namespace TasksApi.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteTask(int id)
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteTask(int id, CancellationToken cancellationToken)
         {
-            var deleted = await _taskService.DeleteAsync(id);
+            var deleted = await _taskService.DeleteAsync(id, cancellationToken);
 
             if (!deleted)
                 return NotFound();
