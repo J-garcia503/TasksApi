@@ -1,22 +1,29 @@
-﻿
-# Imagen base para ejecutar la API
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080
 
-# Imagen para compilar el proyecto
+RUN mkdir -p /app/data && chown -R $APP_UID /app/data
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["TasksApi.csproj", "./"]
-RUN dotnet restore "TasksApi.csproj"
+COPY ["src/TasksApi.Domain/TasksApi.Domain.csproj", "src/TasksApi.Domain/"]
+COPY ["src/TasksApi.Application/TasksApi.Application.csproj", "src/TasksApi.Application/"]
+COPY ["src/TasksApi.Infrastructure/TasksApi.Infrastructure.csproj", "src/TasksApi.Infrastructure/"]
+COPY ["src/TasksApi.Api/TasksApi.Api.csproj", "src/TasksApi.Api/"]
+RUN dotnet restore "src/TasksApi.Api/TasksApi.Api.csproj"
 
-COPY . .
-RUN dotnet publish "TasksApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+COPY src/ src/
+RUN dotnet publish "src/TasksApi.Api/TasksApi.Api.csproj" \
+    -c $BUILD_CONFIGURATION \
+    -o /app/publish \
+    --no-restore \
+    /p:UseAppHost=false
 
-# Imagen final
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "TasksApi.dll"]
+USER $APP_UID
+ENTRYPOINT ["dotnet", "TasksApi.Api.dll"]

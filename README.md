@@ -19,53 +19,72 @@ El proyecto utiliza SQLite para almacenar los datos y Entity Framework Core para
 ## Estructura del proyecto
 
 ```text
-TasksApi
+TasksApi.sln
+├── Dockerfile
+├── docker-compose.yml
+├── src
+│   ├── TasksApi.Domain            # Núcleo: entidades y contratos (sin dependencias)
+│   │   ├── Entities/TaskItem.cs
+│   │   └── Repositories/ITaskRepository.cs
+│   │
+│   ├── TasksApi.Application       # Casos de uso: servicios y DTOs
+│   │   ├── DTOs/ (CreateTaskDto, UpdateTaskDto, TaskDto)
+│   │   ├── Interfaces/ITaskService.cs
+│   │   ├── Services/TaskService.cs
+│   │   └── DependencyInjection.cs
+│   │
+│   ├── TasksApi.Infrastructure    # Acceso a datos con EF Core + SQLite
+│   │   ├── Persistence/ApplicationDbContext.cs
+│   │   ├── Persistence/Configurations/TaskItemConfiguration.cs
+│   │   ├── Persistence/Migrations/
+│   │   ├── Repositories/TaskRepository.cs
+│   │   └── DependencyInjection.cs
+│   │
+│   └── TasksApi.Api               # Presentación: controladores y arranque
+│       ├── Controllers/TasksController.cs
+│       ├── Program.cs
+│       └── appsettings.json
 │
-├── Controllers
-│   └── TasksController.cs
-│
-├── Data
-│   └── ApplicationDbContext.cs
-│
-├── Models
-│   └── Task.cs
-│
-├── Services
-│   ├── ITaskService.cs
-│   └── TaskService.cs
-│
-├── Program.cs
-└── tasks.db
-
-TasksApi.Tests
-├── CustomWebApplicationFactory.cs
-└── TasksControllerTests.cs
+└── tests
+    └── TasksApi.Tests
+        ├── CustomWebApplicationFactory.cs
+        └── TasksControllerTests.cs
 ```
 
 ## Requisitos
 
 - .NET 8 SDK
-- Visual Studio 2022 o superior
-- SQLite
+- Visual Studio 2022 o superior (opcional)
+- Docker Desktop (opcional, para ejecutar en contenedor)
 
 ## Instalación y ejecución
 
 1. Clonar o descargar el repositorio.
-2. Abrir la solución `TasksApi.sln` en Visual Studio.
-3. Restaurar los paquetes NuGet.
-4. Ejecutar las migraciones de Entity Framework Core si es necesario:
+2. Ejecutar el proyecto (las migraciones se aplican automáticamente al iniciar y se crea `tasks.db`):
 
 ```bash
-dotnet ef database update --project TasksApi
+dotnet run --project src/TasksApi.Api
 ```
 
-5. Ejecutar el proyecto:
+3. Abrir Swagger en `http://localhost:5123/swagger`.
+
+Para crear una nueva migración:
 
 ```bash
-dotnet run --project TasksApi
+dotnet ef migrations add NombreMigracion --project src/TasksApi.Infrastructure --startup-project src/TasksApi.Api -o Persistence/Migrations
 ```
 
-6. Abrir Swagger desde la dirección `/swagger` de la aplicación.
+## Ejecución con Docker
+
+```bash
+docker compose up -d --build
+```
+
+- API: `http://localhost:8080/api/Tasks`
+- Swagger: `http://localhost:8080/swagger`
+- La base SQLite se guarda en el volumen `tasks-data` (`/app/data/tasks.db`), por lo que los datos persisten entre reinicios del contenedor.
+
+Para detener el contenedor: `docker compose down` (añadir `-v` para borrar también los datos).
 
 ## Endpoints disponibles
 
@@ -100,12 +119,12 @@ El campo `title` es obligatorio y no puede superar los 100 caracteres.
 
 ## Pruebas automatizadas
 
-El proyecto `TasksApi.Tests` utiliza xUnit y una base de datos temporal en memoria.
+El proyecto `TasksApi.Tests` utiliza xUnit y una base de datos SQLite temporal en memoria.
 
 Para ejecutar las pruebas:
 
 ```bash
-dotnet test TasksApi.Tests
+dotnet test
 ```
 
 Pruebas implementadas:
@@ -113,15 +132,24 @@ Pruebas implementadas:
 1. Crear una tarea correctamente y comprobar el código 201.
 2. Enviar una tarea sin título y comprobar el código 400.
 3. Consultar una tarea inexistente y comprobar el código 404.
+4. Actualizar y eliminar una tarea y comprobar los códigos 204 y 404.
 
 ## Arquitectura
 
-El proyecto utiliza separación de responsabilidades:
+El proyecto sigue Clean Architecture. Las dependencias apuntan siempre hacia el núcleo:
 
-- **Controllers:** reciben las solicitudes HTTP y devuelven respuestas.
-- **Services:** contienen la lógica de las operaciones.
-- **Data:** administra el acceso a la base de datos mediante Entity Framework Core.
-- **Models:** definen la estructura de los datos.
+```text
+Api  ──►  Application  ──►  Domain
+ │                            ▲
+ └──►  Infrastructure  ───────┘
+```
+
+- **Domain:** entidad `TaskItem` y el contrato `ITaskRepository`. No depende de ningún otro proyecto ni de EF Core.
+- **Application:** lógica de negocio (`TaskService`), DTOs de entrada/salida y validaciones. Solo conoce el Domain.
+- **Infrastructure:** implementa `ITaskRepository` con Entity Framework Core y SQLite; contiene el `DbContext` y las migraciones.
+- **Api:** controladores HTTP y composición de dependencias (`AddApplication()` y `AddInfrastructure()`).
+
+Los controladores reciben y devuelven DTOs; la entidad de dominio nunca se expone directamente en la API.
 
 ## Persistencia
 
