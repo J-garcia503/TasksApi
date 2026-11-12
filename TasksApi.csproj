@@ -17,6 +17,14 @@
 
   <ItemGroup>
     <Compile Remove="TasksApi.Tests/**/*.cs" />
+	  <Compile Remove="src/**/*.cs" />
+	  <Compile Remove="Migrations/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="src\TasksApi.Domain\TasksApi.Domain.csproj" />
+    <ProjectReference Include="src\TasksApi.Application\TasksApi.Application.csproj" />
+    <ProjectReference Include="src\TasksApi.Infrastructure\TasksApi.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

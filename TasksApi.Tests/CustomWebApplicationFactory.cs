@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
-using TasksApi.Data;
+using TasksApi.Infrastructure.Data;
 
 namespace TasksApi.Tests
 {

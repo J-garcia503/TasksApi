@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TasksApi.Data;
-using TaskModel = TasksApi.Models.Task;
+﻿
+using Microsoft.EntityFrameworkCore;
+using TasksApi.Application.Interfaces;
+using TasksApi.Infrastructure.Data;
+using TaskEntity = TasksApi.Domain.Entities.Task;
 
-namespace TasksApi.Services
+namespace TasksApi.Infrastructure.Services
 {
     public class TaskService : ITaskService
     {
@@ -13,39 +15,35 @@ namespace TasksApi.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<TaskModel>> GetAllAsync()
+        public async Task<IEnumerable<TaskEntity>> GetAllAsync()
         {
             return await _context.Tasks.ToListAsync();
         }
 
-        public async Task<TaskModel?> GetByIdAsync(int id)
+        public async Task<TaskEntity?> GetByIdAsync(int id)
         {
             return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<TaskModel> CreateAsync(TaskModel task)
+        public async Task<TaskEntity> CreateAsync(TaskEntity task)
         {
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
-
             return task;
         }
 
-        public async Task<bool> UpdateAsync(int id, TaskModel task)
+        public async Task<bool> UpdateAsync(int id, TaskEntity task)
         {
             var existingTask = await _context.Tasks.FindAsync(id);
 
             if (existingTask == null)
-            {
                 return false;
-            }
 
             existingTask.Title = task.Title;
             existingTask.Description = task.Description;
             existingTask.IsCompleted = task.IsCompleted;
 
             await _context.SaveChangesAsync();
-
             return true;
         }
 
@@ -54,14 +52,12 @@ namespace TasksApi.Services
             var task = await _context.Tasks.FindAsync(id);
 
             if (task == null)
-            {
                 return false;
-            }
 
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
-
             return true;
         }
     }
 }
+

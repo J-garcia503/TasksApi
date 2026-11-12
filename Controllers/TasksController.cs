@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using TasksApi.Services;
-using TaskModel = TasksApi.Models.Task;
+using TasksApi.Application.Interfaces;
+using TaskEntity = TasksApi.Domain.Entities.Task;
 
 namespace TasksApi.Controllers
 {
@@ -16,43 +16,31 @@ namespace TasksApi.Controllers
             _taskService = taskService;
         }
 
-
-        [ProducesResponseType(
-            typeof(IEnumerable<TaskModel>),
-            StatusCodes.Status200OK)]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskModel>>> GetTasks()
+        [ProducesResponseType(typeof(IEnumerable<TaskEntity>), 200)]
+        public async Task<ActionResult<IEnumerable<TaskEntity>>> GetTasks()
         {
             var tasks = await _taskService.GetAllAsync();
-
             return Ok(tasks);
         }
 
-        [ProducesResponseType(
-            typeof(TaskModel),
-                StatusCodes.Status200OK)]
-                [ProducesResponseType(
-                StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskModel>> GetTask(int id)
+        [ProducesResponseType(typeof(TaskEntity), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<TaskEntity>> GetTask(int id)
         {
             var task = await _taskService.GetByIdAsync(id);
 
             if (task == null)
-            {
                 return NotFound();
-            }
 
             return Ok(task);
         }
 
-        [ProducesResponseType(
-            typeof(TaskModel),
-            StatusCodes.Status201Created)]
-            [ProducesResponseType(
-            StatusCodes.Status400BadRequest)]
         [HttpPost]
-        public async Task<ActionResult<TaskModel>> CreateTask(TaskModel task)
+        [ProducesResponseType(typeof(TaskEntity), 201)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<TaskEntity>> CreateTask(TaskEntity task)
         {
             var createdTask = await _taskService.CreateAsync(task);
 
@@ -63,45 +51,34 @@ namespace TasksApi.Controllers
             );
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(int id, TaskModel task)
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateTask(int id, TaskEntity task)
         {
             if (id != task.Id)
-            {
-                return BadRequest(new
-                {
-                    message = "El ID de la URL no coincide con el ID de la tarea."
-                });
-            }
+                return BadRequest(new { message = "El ID de la URL no coincide con el ID de la tarea." });
 
             var updated = await _taskService.UpdateAsync(id, task);
 
             if (!updated)
-            {
                 return NotFound();
-            }
 
             return NoContent();
         }
 
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var deleted = await _taskService.DeleteAsync(id);
 
             if (!deleted)
-            {
                 return NotFound();
-            }
 
             return NoContent();
         }
     }
 }
-
-
