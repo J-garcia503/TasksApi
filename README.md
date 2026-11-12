@@ -1,3 +1,4 @@
+
 ﻿# TasksApi – API de Gestión de Tareas
 
 ## Descripción
@@ -156,3 +157,7 @@ Los controladores reciben y devuelven DTOs; la entidad de dominio nunca se expon
 La aplicación utiliza SQLite para almacenar las tareas de forma persistente.
 
 Las pruebas automatizadas utilizan una base de datos independiente en memoria para evitar modificar los datos reales.
+=======
+# TasksApi
+API REST para gestión de tareas con ASP.NET Core 8
+origin/main
